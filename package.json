@@ -1,27 +1,26 @@
 {
-  "name": "graphql-server",
+  "name": "graphql-server-workspace",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "GraphQL Server project with backend, frontend, and Vue app",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "vue"
+  ],
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "nodemon --exec ts-node src/server.ts",
-    "dev:watch": "nodemon --watch src --exec ts-node src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:backend": "npm run dev --workspace=@graphql-server/backend",
+    "dev:frontend": "npm run dev --workspace=@graphql-server/frontend",
+    "dev:vue": "npm run dev --workspace=@graphql-server/vue",
+    "build:backend": "npm run build --workspace=@graphql-server/backend",
+    "build:vue": "npm run build --workspace=@graphql-server/vue",
+    "install:all": "npm install"
   },
-  "keywords": [],
+  "keywords": [
+    "graphql",
+    "workspace",
+    "monorepo"
+  ],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "apollo-server": "^3.13.0",
-    "graphql": "^16.12.0"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.1",
-    "nodemon": "^3.1.11",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-  }
+  "license": "ISC"
 }

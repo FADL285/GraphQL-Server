@@ -3,6 +3,8 @@ node_modules/
 
 # Build output
 dist/
+backend/dist/
+vue-app/dist/
 
 # Environment variables
 .env
@@ -30,3 +32,8 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
+# Vite
+vue/.vite/
+
+# Package locks (optional - uncomment if you want to ignore)
+# package-lock.json

@@ -1,65 +1,163 @@
-# GraphQL Server
+# GraphQL Server Workspace
 
-A simple GraphQL server built with Apollo Server and TypeScript, following the Vue Mastery tutorial.
+A monorepo workspace containing a GraphQL server backend, simple HTML/JS frontend, and Vue 3 application.
 
-## Features
+## Project Structure
 
-- GraphQL API with Query and Mutation support
-- Interactive GraphQL Playground (GraphiQL)
-- In-memory data store for Users and Posts
-- Type-safe schema definitions with TypeScript
-- Modular code organization with separated concerns
-- TypeScript for better type safety and developer experience
+```
+.
+├── backend/          # GraphQL Server (Apollo Server + TypeScript)
+├── frontend/          # Simple HTML/JS client (Fetch API)
+├── vue/               # Vue 3 application
+└── package.json       # Root workspace configuration
+```
 
-## Installation
+## Workspaces
+
+This project uses [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces) to manage multiple packages:
+
+- **`@graphql-server/backend`** - GraphQL API server
+- **`@graphql-server/frontend`** - Simple HTML/JS frontend
+- **`@graphql-server/vue`** - Vue 3 application
+
+## Quick Start
+
+### 1. Install Dependencies
+
+Install all workspace dependencies:
 
 ```bash
 npm install
 ```
 
-## Project Structure
+This will install dependencies for all workspaces (backend, frontend, vue).
 
-```
-src/
-├── types/          # TypeScript type definitions
-├── schema/         # GraphQL schema definitions
-├── resolvers/      # Resolver functions (Query, Mutation, User)
-├── data/           # Data source and initial data
-└── server.ts       # Main server entry point
-```
-
-## Running the Server
-
-### Development Mode (with auto-reload)
+### 2. Start the Backend Server
 
 ```bash
-npm run dev
+npm run dev:backend
 ```
 
-This uses `ts-node` to run TypeScript directly with hot-reload via nodemon.
+The GraphQL server will start on `http://localhost:4001`
 
-### Production Mode
+- **GraphQL Endpoint**: `http://localhost:4001`
+- **GraphQL Playground**: `http://localhost:4001`
+
+### 3. Start a Frontend (choose one)
+
+**Option A: Simple HTML/JS Frontend**
+```bash
+npm run dev:frontend
+```
+Visit `http://localhost:3000` (or the port shown in terminal)
+
+**Option B: Vue App**
+```bash
+npm run dev:vue
+```
+Visit `http://localhost:5173` (or the port shown in terminal)
+
+## Available Scripts
+
+### Root Level (Workspace Commands)
 
 ```bash
-npm run build  # Compile TypeScript to JavaScript
-npm start      # Run the compiled server
+# Development
+npm run dev:backend    # Start GraphQL server
+npm run dev:frontend   # Start simple HTML/JS frontend
+npm run dev:vue        # Start Vue app
+
+# Build
+npm run build:backend  # Build backend TypeScript
+npm run build:vue      # Build Vue app for production
+
+# Install
+npm install            # Install all workspace dependencies
 ```
 
-The server will start on `http://localhost:4001`
+### Workspace-Specific Commands
 
-## GraphQL Playground
+You can also run commands from within each workspace directory:
 
-Once the server is running, visit `http://localhost:4001` in your browser to access the GraphQL Playground. This interactive tool allows you to:
+```bash
+# Backend
+cd backend
+npm run dev            # Start server
+npm run build          # Build TypeScript
+npm start              # Run production build
 
-- Explore the schema
-- Write and test queries
-- Execute mutations
-- View documentation
+# Frontend
+cd frontend
+npm run dev            # Start static server
+npm run preview        # Alternative server
 
-## Example Queries
+# Vue App
+cd vue
+npm run dev            # Start Vite dev server
+npm run build          # Build for production
+npm run preview        # Preview production build
+```
+
+## Workspace Details
+
+### Backend (`backend/`)
+
+GraphQL server built with:
+- Apollo Server v3
+- TypeScript
+- In-memory data store
+
+See [backend/README.md](./backend/README.md) for details.
+
+### Frontend (`frontend/`)
+
+Simple HTML/JavaScript client using:
+- Fetch API
+- Vanilla JavaScript
+- No build step required
+
+See [frontend/README.md](./frontend/README.md) for details.
+
+### Vue App (`vue/`)
+
+Vue 3 application with:
+- Composition API
+- TypeScript
+- Vite
+
+See [vue/README.md](./vue/README.md) for details.
+
+## Development Workflow
+
+### Typical Development Setup
+
+1. **Terminal 1** - Start the backend:
+   ```bash
+   npm run dev:backend
+   ```
+
+2. **Terminal 2** - Start a frontend (choose one):
+   ```bash
+   # Simple frontend
+   npm run dev:frontend
+   
+   # OR Vue app
+   npm run dev:vue
+   ```
+
+3. Open your browser and test the application
+
+### Testing the GraphQL API
+
+You can test the GraphQL API directly using the GraphQL Playground:
+
+1. Start the backend: `npm run dev:backend`
+2. Visit `http://localhost:4001` in your browser
+3. Use the interactive playground to test queries and mutations
+
+## Example GraphQL Queries
 
 ### Get Current User
-
 ```graphql
 query {
   currentUser {
@@ -73,22 +171,7 @@ query {
 }
 ```
 
-### Get Posts by User
-
-```graphql
-query {
-  postsByUser(userId: "abc-1") {
-    id
-    content
-    userId
-  }
-}
-```
-
-## Example Mutations
-
-### Add a New Post
-
+### Add a Post
 ```graphql
 mutation {
   addPost(content: "My new post!") {
@@ -99,22 +182,6 @@ mutation {
 }
 ```
 
-## Testing with Fetch API
-
-You can also test the API using the browser console:
-
-```javascript
-fetch("http://localhost:4001", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    query: "query { currentUser { id username } }",
-  }),
-})
-  .then((resp) => resp.json())
-  .then((data) => console.log(data));
-```
-
 ## Schema
 
 - **User**: Represents a user with id, username, and posts
@@ -122,45 +189,10 @@ fetch("http://localhost:4001", {
 - **Query**: `currentUser`, `postsByUser(userId: String!)`
 - **Mutation**: `addPost(content: String!)`
 
-## Frontend Application
+## Notes
 
-A simple frontend client is included in the `frontend/` directory that demonstrates how to use the Fetch API to interact with the GraphQL server.
+⚠️ **Deprecation Notice**: The backend uses `apollo-server` which is deprecated. For production use, consider migrating to `@apollo/server` (Apollo Server v4+).
 
-### Running the Frontend
+## License
 
-**Step 1: Start the GraphQL Server** (in one terminal)
-
-```bash
-npm run dev
-```
-
-The server will start on `http://localhost:4001`
-
-**Step 2: Start the Frontend** (in a new terminal)
-
-```bash
-# Option 1: Using serve (recommended)
-npx serve -s frontend
-# Option 2: Using http-server
-npx http-server frontend -p 8000
-```
-
-**Step 3: Open in Browser**
-
-- Visit `http://localhost:3000` (if using `serve`) or `http://localhost:8000` (if using http-server)
-- The app will automatically load user data and posts
-
-**Note:** You need both the server and frontend running simultaneously in separate terminals.
-
-The frontend includes:
-
-- User information display
-- Posts listing
-- Add new post functionality
-- Modern, responsive UI
-
-See `frontend/README.md` for more details.
-
-## Note
-
-⚠️ **Deprecation Notice**: This project uses `apollo-server` which is deprecated. For production use, consider migrating to `@apollo/server` (Apollo Server v4+).
+ISC
