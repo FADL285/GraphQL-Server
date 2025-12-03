@@ -1,8 +1,33 @@
 /**
  * GraphQL Client using Fetch API
+ * Demonstrates how to call GraphQL with native fetch
  */
 
-const GRAPHQL_ENDPOINT = "http://localhost:4001";
+const GRAPHQL_ENDPOINT = "http://localhost:4001/graphql";
+
+// Store auth token in memory (in production, use secure storage)
+let authToken = null;
+
+/**
+ * Set the auth token
+ */
+function setToken(token) {
+  authToken = token;
+}
+
+/**
+ * Get the current auth token
+ */
+function getToken() {
+  return authToken;
+}
+
+/**
+ * Clear the auth token
+ */
+function clearToken() {
+  authToken = null;
+}
 
 /**
  * Execute a GraphQL query or mutation
@@ -11,12 +36,20 @@ const GRAPHQL_ENDPOINT = "http://localhost:4001";
  * @returns {Promise<Object>} - Response data
  */
 async function graphqlRequest(query, variables = {}) {
+  // Build headers
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  // Add auth token if available
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+
   try {
     const response = await fetch(GRAPHQL_ENDPOINT, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         query,
         variables,
@@ -40,66 +73,90 @@ async function graphqlRequest(query, variables = {}) {
   }
 }
 
+// ============ QUERIES ============
+
 /**
- * Get current user with their posts
- * @returns {Promise<Object>} - User object with posts
+ * Get all posts
+ * @returns {Promise<Array>} - Array of posts
  */
-async function getCurrentUser() {
+async function getPosts() {
   const query = `
-    query {
-      currentUser {
+    query GetPosts {
+      posts {
         id
-        username
-        posts {
+        content
+        author {
           id
-          content
-          userId
+          username
         }
+        createdAt
       }
     }
   `;
 
   const data = await graphqlRequest(query);
-  return data.currentUser;
+  return data.posts;
 }
 
+// ============ MUTATIONS ============
+
 /**
- * Get posts by user ID
- * @param {string} userId - User ID
- * @returns {Promise<Array>} - Array of posts
+ * Login and get JWT token
+ * @param {string} username
+ * @param {string} password
+ * @returns {Promise<Object>} - { token, user }
  */
-async function getPostsByUser(userId) {
-  const query = `
-    query GetPostsByUser($userId: String!) {
-      postsByUser(userId: $userId) {
-        id
-        content
-        userId
+async function login(username, password) {
+  const mutation = `
+    mutation Login($username: String!, $password: String!) {
+      login(username: $username, password: $password) {
+        token
+        user {
+          id
+          username
+        }
       }
     }
   `;
 
-  const data = await graphqlRequest(query, { userId });
-  return data.postsByUser;
+  const data = await graphqlRequest(mutation, { username, password });
+  return data.login;
 }
 
 /**
- * Add a new post
+ * Create a new post (requires auth)
  * @param {string} content - Post content
  * @returns {Promise<Object>} - Created post object
  */
-async function addPost(content) {
+async function createPost(content) {
   const mutation = `
-    mutation AddPost($content: String!) {
-      addPost(content: $content) {
+    mutation CreatePost($content: String!) {
+      createPost(content: $content) {
         id
         content
-        userId
+        author {
+          username
+        }
       }
     }
   `;
 
   const data = await graphqlRequest(mutation, { content });
-  return data.addPost;
+  return data.createPost;
 }
 
+/**
+ * Delete a post (requires auth, own posts only)
+ * @param {string} id - Post ID
+ * @returns {Promise<boolean>} - Success status
+ */
+async function deletePost(id) {
+  const mutation = `
+    mutation DeletePost($id: ID!) {
+      deletePost(id: $id)
+    }
+  `;
+
+  const data = await graphqlRequest(mutation, { id });
+  return data.deletePost;
+}

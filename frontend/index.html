@@ -9,45 +9,75 @@
   <body>
     <div class="container">
       <header>
-        <h1>📝 GraphQL Posts App</h1>
-        <p class="subtitle">Simple frontend using Fetch API</p>
+        <h1>📝 GraphQL Posts</h1>
+        <p class="subtitle">Simple frontend using native Fetch API</p>
       </header>
 
       <main>
-        <section class="user-section">
-          <h2>Current User</h2>
-          <div id="user-info" class="user-info">
-            <div class="loading">Loading user...</div>
+        <!-- Auth Section -->
+        <section id="auth-section" class="auth-section">
+          <div class="auth-card">
+            <h2>Login</h2>
+            <form id="login-form" class="login-form">
+              <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                value="andy25"
+                required
+              />
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                value="password123"
+                required
+              />
+              <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <p class="hint">Default: andy25 / password123</p>
           </div>
         </section>
 
-        <section class="posts-section">
-          <div class="posts-header">
-            <h2>Posts</h2>
-            <button id="refresh-btn" class="btn btn-secondary">
-              🔄 Refresh
-            </button>
+        <!-- Logged In Section (hidden by default) -->
+        <section id="logged-in-section" class="logged-in-section" style="display: none">
+          <div class="user-bar">
+            <span>Logged in as: <strong id="logged-user"></strong></span>
+            <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
           </div>
 
-          <div id="posts-container" class="posts-container">
-            <div class="loading">Loading posts...</div>
-          </div>
+          <!-- Posts Section -->
+          <section class="posts-section">
+            <div class="posts-header">
+              <h2>All Posts</h2>
+              <button id="refresh-btn" class="btn btn-secondary">🔄 Refresh</button>
+            </div>
+            <div id="posts-container" class="posts-container">
+              <div class="loading">Loading posts...</div>
+            </div>
+          </section>
+
+          <!-- Add Post Section -->
+          <section class="add-post-section">
+            <h2>Add New Post</h2>
+            <form id="add-post-form" class="add-post-form">
+              <textarea
+                id="post-content"
+                placeholder="What's on your mind?"
+                rows="3"
+                required
+              ></textarea>
+              <button type="submit" class="btn btn-primary">➕ Add Post</button>
+            </form>
+          </section>
         </section>
 
-        <section class="add-post-section">
-          <h2>Add New Post</h2>
-          <form id="add-post-form" class="add-post-form">
-            <textarea
-              id="post-content"
-              placeholder="What's on your mind?"
-              rows="4"
-              required
-            ></textarea>
-            <button type="submit" class="btn btn-primary">➕ Add Post</button>
-          </form>
-          <div id="message" class="message"></div>
-        </section>
+        <div id="message" class="message"></div>
       </main>
+
+      <footer>
+        <p>Demonstrating GraphQL with native <code>fetch()</code></p>
+      </footer>
     </div>
 
     <script src="graphql-client.js"></script>

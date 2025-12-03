@@ -4,7 +4,7 @@
   "description": "Simple HTML/JS frontend using Fetch API",
   "type": "module",
   "scripts": {
-    "dev": "npx serve -s .",
+    "dev": "npx serve -s . -l 3000",
     "preview": "npx http-server . -p 8000"
   },
   "keywords": [

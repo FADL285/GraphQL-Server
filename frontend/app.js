@@ -1,78 +1,129 @@
 /**
  * Main Application Logic
+ * Demonstrates GraphQL queries and mutations with native fetch
  */
 
 // DOM Elements
-const userInfoEl = document.getElementById("user-info");
+const authSectionEl = document.getElementById("auth-section");
+const loggedInSectionEl = document.getElementById("logged-in-section");
+const loginFormEl = document.getElementById("login-form");
+const usernameEl = document.getElementById("username");
+const passwordEl = document.getElementById("password");
+const loggedUserEl = document.getElementById("logged-user");
+const logoutBtnEl = document.getElementById("logout-btn");
 const postsContainerEl = document.getElementById("posts-container");
 const addPostFormEl = document.getElementById("add-post-form");
 const postContentEl = document.getElementById("post-content");
 const refreshBtnEl = document.getElementById("refresh-btn");
 const messageEl = document.getElementById("message");
 
+// Current user state
+let currentUser = null;
+
 /**
- * Display user information
+ * Handle login form submission
  */
-async function displayUser() {
+async function handleLogin(event) {
+  event.preventDefault();
+
+  const username = usernameEl.value.trim();
+  const password = passwordEl.value;
+
+  if (!username || !password) {
+    showMessage("Please enter username and password", "error");
+    return;
+  }
+
   try {
-    userInfoEl.innerHTML = '<div class="loading">Loading user...</div>';
-    const user = await getCurrentUser();
+    showMessage("Logging in...", "info");
 
-    if (!user) {
-      userInfoEl.innerHTML = '<div class="error">No user found</div>';
-      return;
-    }
+    // Call login mutation
+    const result = await login(username, password);
 
-    userInfoEl.innerHTML = `
-      <div class="user-card">
-        <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
-        <div class="user-details">
-          <h3>${escapeHtml(user.username)}</h3>
-          <p class="user-id">ID: ${escapeHtml(user.id)}</p>
-        </div>
-      </div>
-    `;
+    // Store token
+    setToken(result.token);
+    currentUser = result.user;
+
+    // Update UI
+    showLoggedInState();
+    showMessage(`Welcome, ${currentUser.username}!`, "success");
+
+    // Load posts
+    await displayPosts();
   } catch (error) {
-    userInfoEl.innerHTML = `<div class="error">Error: ${escapeHtml(error.message)}</div>`;
-    console.error("Failed to load user:", error);
+    showMessage(`Login failed: ${error.message}`, "error");
   }
 }
 
 /**
- * Display posts
+ * Handle logout
+ */
+function handleLogout() {
+  clearToken();
+  currentUser = null;
+  showLoggedOutState();
+  showMessage("Logged out", "info");
+}
+
+/**
+ * Show logged in UI state
+ */
+function showLoggedInState() {
+  authSectionEl.style.display = "none";
+  loggedInSectionEl.style.display = "block";
+  loggedUserEl.textContent = currentUser.username;
+}
+
+/**
+ * Show logged out UI state
+ */
+function showLoggedOutState() {
+  authSectionEl.style.display = "block";
+  loggedInSectionEl.style.display = "none";
+  postsContainerEl.innerHTML = "";
+}
+
+/**
+ * Display all posts
  */
 async function displayPosts() {
   try {
     postsContainerEl.innerHTML = '<div class="loading">Loading posts...</div>';
-    const user = await getCurrentUser();
 
-    if (!user) {
-      postsContainerEl.innerHTML = '<div class="error">No user found</div>';
-      return;
-    }
-
-    const posts = user.posts || [];
+    // Query all posts
+    const posts = await getPosts();
 
     if (posts.length === 0) {
-      postsContainerEl.innerHTML = '<div class="empty-state">No posts yet. Add your first post below! 📝</div>';
+      postsContainerEl.innerHTML =
+        '<div class="empty-state">No posts yet. Be the first to post!</div>';
       return;
     }
 
+    // Render posts with delete button for own posts
     postsContainerEl.innerHTML = posts
-      .map(
-        (post) => `
-      <div class="post-card">
-        <div class="post-content">${escapeHtml(post.content)}</div>
-        <div class="post-meta">
-          <span class="post-id">ID: ${escapeHtml(post.id)}</span>
-        </div>
-      </div>
-    `
-      )
+      .map((post) => {
+        const isOwnPost = currentUser && post.author.id === currentUser.id;
+        return `
+          <div class="post-card" data-id="${post.id}">
+            <div class="post-header">
+              <span class="post-author">@${escapeHtml(post.author.username)}</span>
+              ${isOwnPost ? `<button class="btn btn-danger btn-sm delete-btn" data-id="${post.id}">🗑️</button>` : ""}
+            </div>
+            <div class="post-content">${escapeHtml(post.content)}</div>
+            <div class="post-meta">
+              <span class="post-date">${formatDate(post.createdAt)}</span>
+            </div>
+          </div>
+        `;
+      })
       .join("");
+
+    // Attach delete handlers
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", handleDeletePost);
+    });
   } catch (error) {
     postsContainerEl.innerHTML = `<div class="error">Error: ${escapeHtml(error.message)}</div>`;
-    console.error("Failed to load posts:", error);
   }
 }
 
@@ -85,29 +136,24 @@ async function handleAddPost(event) {
   const content = postContentEl.value.trim();
 
   if (!content) {
-    showMessage("Please enter some content for your post.", "error");
+    showMessage("Please enter some content", "error");
     return;
   }
 
   try {
-    // Disable form during submission
     const submitBtn = addPostFormEl.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.textContent = "Adding...";
 
-    showMessage("Adding post...", "info");
+    // Call createPost mutation
+    await createPost(content);
 
-    const newPost = await addPost(content);
-
-    // Clear form
     postContentEl.value = "";
+    showMessage("Post added!", "success");
 
-    showMessage("Post added successfully! 🎉", "success");
-
-    // Refresh posts display
+    // Refresh posts
     await displayPosts();
 
-    // Re-enable form
     submitBtn.disabled = false;
     submitBtn.textContent = "➕ Add Post";
   } catch (error) {
@@ -115,7 +161,32 @@ async function handleAddPost(event) {
     const submitBtn = addPostFormEl.querySelector('button[type="submit"]');
     submitBtn.disabled = false;
     submitBtn.textContent = "➕ Add Post";
-    console.error("Failed to add post:", error);
+  }
+}
+
+/**
+ * Handle delete post button click
+ */
+async function handleDeletePost(event) {
+  const postId = event.target.dataset.id;
+
+  if (!confirm("Delete this post?")) return;
+
+  try {
+    event.target.disabled = true;
+    event.target.textContent = "...";
+
+    // Call deletePost mutation
+    await deletePost(postId);
+
+    showMessage("Post deleted!", "success");
+
+    // Refresh posts
+    await displayPosts();
+  } catch (error) {
+    showMessage(`Error: ${error.message}`, "error");
+    event.target.disabled = false;
+    event.target.textContent = "🗑️";
   }
 }
 
@@ -127,8 +198,7 @@ function showMessage(text, type = "info") {
   messageEl.className = `message message-${type}`;
   messageEl.style.display = "block";
 
-  // Auto-hide success messages after 3 seconds
-  if (type === "success") {
+  if (type === "success" || type === "info") {
     setTimeout(() => {
       messageEl.style.display = "none";
     }, 3000);
@@ -145,21 +215,32 @@ function escapeHtml(text) {
 }
 
 /**
+ * Format date for display
+ */
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
  * Initialize the application
  */
-async function init() {
-  // Load initial data
-  await Promise.all([displayUser(), displayPosts()]);
-
+function init() {
   // Set up event listeners
+  loginFormEl.addEventListener("submit", handleLogin);
+  logoutBtnEl.addEventListener("click", handleLogout);
   addPostFormEl.addEventListener("submit", handleAddPost);
   refreshBtnEl.addEventListener("click", async () => {
     refreshBtnEl.disabled = true;
-    refreshBtnEl.textContent = "🔄 Refreshing...";
-    await Promise.all([displayUser(), displayPosts()]);
+    refreshBtnEl.textContent = "🔄...";
+    await displayPosts();
     refreshBtnEl.disabled = false;
     refreshBtnEl.textContent = "🔄 Refresh";
-    showMessage("Refreshed!", "success");
   });
 }
 
@@ -169,4 +250,3 @@ if (document.readyState === "loading") {
 } else {
   init();
 }
-

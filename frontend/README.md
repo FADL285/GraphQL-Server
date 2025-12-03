@@ -1,72 +1,93 @@
-# Frontend - Simple HTML/JS Client
+# Frontend - Simple GraphQL Client
 
-A simple frontend application that uses the Fetch API to interact with the GraphQL server.
+A minimal HTML/CSS/JS frontend demonstrating how to call GraphQL APIs using native `fetch()`.
 
 ## Features
 
-- Display current user information
-- List all posts for the current user
-- Add new posts via GraphQL mutations
-- Refresh data on demand
-- Modern, responsive UI
-- Error handling and loading states
+- **Login** - Authenticate with JWT token
+- **View Posts** - Query all posts from the GraphQL API
+- **Add Post** - Create new posts (requires auth)
+- **Delete Post** - Delete your own posts (requires auth)
 
-## Project Structure
-
-```
-frontend/
-├── index.html          # Main HTML structure
-├── styles.css         # Styling
-├── graphql-client.js  # GraphQL fetch API utilities
-├── app.js            # Application logic
-└── README.md         # This file
-```
-
-## Installation
-
-No installation needed - this is a static HTML/JS application.
-
-## Running the Frontend
-
-**Prerequisites**: The GraphQL server must be running (see `../backend/README.md`)
+## Running
 
 ```bash
-# From root
+# From root directory
 npm run dev:frontend
 
-# Or from this directory
-npm run dev
+# Opens at http://localhost:3000
 ```
 
-The frontend will be available at `http://localhost:3000` (or check the terminal output).
+## How It Works
 
-## Alternative Methods
+### GraphQL Query Example
 
-```bash
-# Using http-server
-npm run preview
+```javascript
+async function getPosts() {
+  const query = `
+    query GetPosts {
+      posts {
+        id
+        content
+        author { username }
+      }
+    }
+  `;
 
-# Or manually
-npx serve -s .
-npx http-server . -p 8000
+  const response = await fetch("http://localhost:4001/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+
+  const { data } = await response.json();
+  return data.posts;
+}
 ```
 
-## GraphQL Operations
+### GraphQL Mutation Example
 
-The frontend uses the Fetch API to communicate with the GraphQL server at `http://localhost:4001`.
+```javascript
+async function createPost(content) {
+  const mutation = `
+    mutation CreatePost($content: String!) {
+      createPost(content: $content) {
+        id
+        content
+      }
+    }
+  `;
 
-### Queries
+  const response = await fetch("http://localhost:4001/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // JWT token for auth
+    },
+    body: JSON.stringify({
+      query: mutation,
+      variables: { content },
+    }),
+  });
 
-- `getCurrentUser()` - Fetch current user with posts
-- `getPostsByUser(userId)` - Fetch posts for a specific user
+  const { data } = await response.json();
+  return data.createPost;
+}
+```
 
-### Mutations
+## Files
 
-- `addPost(content)` - Create a new post
+| File                | Description             |
+| ------------------- | ----------------------- |
+| `index.html`        | HTML structure          |
+| `styles.css`        | CSS styling             |
+| `graphql-client.js` | GraphQL fetch functions |
+| `app.js`            | Application logic       |
 
-## Browser Compatibility
+## Default Credentials
 
-This app uses modern JavaScript features:
-- Fetch API (supported in all modern browsers)
-- Async/await
-- ES6+ syntax
+| Username   | Password    |
+| ---------- | ----------- |
+| andy25     | password123 |
+| sarah_dev  | password123 |
+| mike_codes | password123 |
