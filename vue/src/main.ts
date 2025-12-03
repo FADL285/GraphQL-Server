@@ -1,6 +1,20 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
-import App from './App.vue'
+import { createPinia } from 'pinia'
 
-createApp(App).mount('#app')
+import App from './App.vue'
+import router from './router'
+import { useAuthStore } from './stores/auth'
+
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.use(router)
+
+// Initialize auth from storage before mounting
+const authStore = useAuthStore()
+authStore.initFromStorage()
+
+app.mount('#app')
