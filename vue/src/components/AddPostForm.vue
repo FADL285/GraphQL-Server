@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+
+const props = defineProps<{
+  disabled?: boolean
+}>()
 
 const content = ref('')
-const isSubmitting = ref(false)
 
 const emit = defineEmits<{
   submit: [content: string]
 }>()
 
+const isDisabled = computed(() => props.disabled || !content.value.trim())
+
 function handleSubmit() {
   const trimmed = content.value.trim()
-  if (!trimmed || isSubmitting.value) return
+  if (!trimmed || props.disabled) return
 
-  isSubmitting.value = true
   emit('submit', trimmed)
-
-  // Reset form (parent will handle the actual submission)
-  setTimeout(() => {
-    content.value = ''
-    isSubmitting.value = false
-  }, 500)
+  content.value = ''
 }
 </script>
 
@@ -33,11 +32,11 @@ function handleSubmit() {
         class="post-input"
         placeholder="What's on your mind?"
         rows="4"
-        :disabled="isSubmitting"
+        :disabled="disabled"
       ></textarea>
 
-      <button type="submit" class="btn btn-primary" :disabled="!content.trim() || isSubmitting">
-        <span v-if="isSubmitting">⏳ Adding...</span>
+      <button type="submit" class="btn btn-primary" :disabled="isDisabled">
+        <span v-if="disabled">⏳ Adding...</span>
         <span v-else>➕ Add Post</span>
       </button>
     </form>

@@ -1,50 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useClient, useQuery, useMutation } from 'villus'
 import UserCard from './components/UserCard.vue'
 import PostList from './components/PostList.vue'
 import AddPostForm from './components/AddPostForm.vue'
+import { GET_CURRENT_USER, ADD_POST } from './graphql/queries'
+import type { GetCurrentUserResponse, AddPostResponse } from './types'
 
-// Test data (will be replaced with GraphQL later)
-const user = ref({
-  id: 'abc-1',
-  username: 'andy25',
+// Configure villus client
+useClient({
+  url: 'http://localhost:4001',
 })
 
-const posts = ref([
-  {
-    id: 'xyz-1',
-    content: 'First Post - Hello world',
-    userId: 'abc-1',
-  },
-  {
-    id: 'xyz-2',
-    content: 'Second Post - Hello again',
-    userId: 'abc-1',
-  },
-  {
-    id: 'xyz-3',
-    content: 'Random Post from Vue!',
-    userId: 'abc-1',
-  },
-])
+// Fetch current user with posts
+const {
+  data,
+  isFetching,
+  execute: refetch,
+} = useQuery<GetCurrentUserResponse>({
+  query: GET_CURRENT_USER,
+})
 
-const loading = ref(false)
+// Add post mutation
+const { execute: addPostMutation, isFetching: isAdding } = useMutation<AddPostResponse>(ADD_POST)
 
-// Placeholder handlers (will add logic later)
+// Computed values
+const user = computed(() => data.value?.currentUser ?? null)
+const posts = computed(() => data.value?.currentUser?.posts ?? [])
+const loading = computed(() => isFetching.value)
+
+// Handlers
 function handleRefresh() {
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-  }, 1000)
+  refetch()
 }
 
-function handleAddPost(content: string) {
-  const newPost = {
-    id: `xyz-${Date.now()}`,
-    content,
-    userId: user.value.id,
+async function handleAddPost(content: string) {
+  const result = await addPostMutation({ content })
+
+  if (result.data) {
+    // Refetch to get updated posts
+    refetch()
   }
-  posts.value.unshift(newPost)
 }
 </script>
 
@@ -52,18 +48,20 @@ function handleAddPost(content: string) {
   <div class="app">
     <header class="header">
       <h1 class="title">📝 GraphQL Posts App</h1>
-      <p class="subtitle">Vue 3 + Composition API</p>
+      <p class="subtitle">Vue 3 + Villus + GraphQL</p>
     </header>
 
     <main class="main">
       <section class="user-section">
         <h2 class="section-label">Current User</h2>
-        <UserCard :user="user" />
+        <div v-if="loading && !user" class="loading-card">Loading user...</div>
+        <UserCard v-else-if="user" :user="user" />
+        <div v-else class="error-card">No user found</div>
       </section>
 
       <PostList :posts="posts" :loading="loading" @refresh="handleRefresh" />
 
-      <AddPostForm @submit="handleAddPost" />
+      <AddPostForm :disabled="isAdding" @submit="handleAddPost" />
     </main>
   </div>
 </template>
@@ -111,6 +109,19 @@ function handleAddPost(content: string) {
   font-size: 1rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
+}
+
+.loading-card,
+.error-card {
+  padding: 1.25rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.error-card {
+  color: var(--error);
 }
 
 @media (max-width: 640px) {
