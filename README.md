@@ -31,6 +31,7 @@ src/
 ## Running the Server
 
 ### Development Mode (with auto-reload)
+
 ```bash
 npm run dev
 ```
@@ -38,6 +39,7 @@ npm run dev
 This uses `ts-node` to run TypeScript directly with hot-reload via nodemon.
 
 ### Production Mode
+
 ```bash
 npm run build  # Compile TypeScript to JavaScript
 npm start      # Run the compiled server
@@ -57,6 +59,7 @@ Once the server is running, visit `http://localhost:4001` in your browser to acc
 ## Example Queries
 
 ### Get Current User
+
 ```graphql
 query {
   currentUser {
@@ -71,6 +74,7 @@ query {
 ```
 
 ### Get Posts by User
+
 ```graphql
 query {
   postsByUser(userId: "abc-1") {
@@ -84,6 +88,7 @@ query {
 ## Example Mutations
 
 ### Add a New Post
+
 ```graphql
 mutation {
   addPost(content: "My new post!") {
@@ -99,15 +104,15 @@ mutation {
 You can also test the API using the browser console:
 
 ```javascript
-fetch('http://localhost:4001', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    query: 'query { currentUser { id username } }' 
+fetch("http://localhost:4001", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    query: "query { currentUser { id username } }",
   }),
 })
-.then(resp => resp.json())
-.then(data => console.log(data))
+  .then((resp) => resp.json())
+  .then((data) => console.log(data));
 ```
 
 ## Schema
@@ -123,14 +128,32 @@ A simple frontend client is included in the `frontend/` directory that demonstra
 
 ### Running the Frontend
 
-1. Start the GraphQL server (see above)
-2. Open `frontend/index.html` in your browser, or use a local server:
-   ```bash
-   npx serve -s frontend
-   ```
-3. Visit `http://localhost:8000` in your browser
+**Step 1: Start the GraphQL Server** (in one terminal)
+
+```bash
+npm run dev
+```
+
+The server will start on `http://localhost:4001`
+
+**Step 2: Start the Frontend** (in a new terminal)
+
+```bash
+# Option 1: Using serve (recommended)
+npx serve -s frontend
+# Option 2: Using http-server
+npx http-server frontend -p 8000
+```
+
+**Step 3: Open in Browser**
+
+- Visit `http://localhost:3000` (if using `serve`) or `http://localhost:8000` (if using http-server)
+- The app will automatically load user data and posts
+
+**Note:** You need both the server and frontend running simultaneously in separate terminals.
 
 The frontend includes:
+
 - User information display
 - Posts listing
 - Add new post functionality
@@ -141,4 +164,3 @@ See `frontend/README.md` for more details.
 ## Note
 
 ⚠️ **Deprecation Notice**: This project uses `apollo-server` which is deprecated. For production use, consider migrating to `@apollo/server` (Apollo Server v4+).
-
