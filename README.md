@@ -117,6 +117,27 @@ fetch('http://localhost:4001', {
 - **Query**: `currentUser`, `postsByUser(userId: String!)`
 - **Mutation**: `addPost(content: String!)`
 
+## Frontend Application
+
+A simple frontend client is included in the `frontend/` directory that demonstrates how to use the Fetch API to interact with the GraphQL server.
+
+### Running the Frontend
+
+1. Start the GraphQL server (see above)
+2. Open `frontend/index.html` in your browser, or use a local server:
+   ```bash
+   npx serve -s frontend
+   ```
+3. Visit `http://localhost:8000` in your browser
+
+The frontend includes:
+- User information display
+- Posts listing
+- Add new post functionality
+- Modern, responsive UI
+
+See `frontend/README.md` for more details.
+
 ## Note
 
 ⚠️ **Deprecation Notice**: This project uses `apollo-server` which is deprecated. For production use, consider migrating to `@apollo/server` (Apollo Server v4+).

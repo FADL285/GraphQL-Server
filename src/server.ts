@@ -4,6 +4,7 @@ import { resolvers } from "./resolvers";
 import { data, currentUserId } from "./data";
 
 // Create Apollo Server instance
+// Note: Apollo Server v3 handles CORS automatically in development
 const server = new ApolloServer({
   typeDefs,
   resolvers,
