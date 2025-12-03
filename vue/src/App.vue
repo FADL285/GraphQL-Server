@@ -7,7 +7,7 @@ import AddPostForm from './components/AddPostForm.vue'
 import { GET_CURRENT_USER, ADD_POST } from './graphql/queries'
 import type { GetCurrentUserResponse, AddPostResponse } from './types'
 
-// Configure villus client
+// Configure villus client (uses default plugins: cache, dedup, fetch)
 useClient({
   url: 'http://localhost:4001',
 })
@@ -19,10 +19,13 @@ const {
   execute: refetch,
 } = useQuery<GetCurrentUserResponse>({
   query: GET_CURRENT_USER,
+  tags: ['current_user'], // Tag for cache management
 })
 
-// Add post mutation
-const { execute: addPostMutation, isFetching: isAdding } = useMutation<AddPostResponse>(ADD_POST)
+// Add post mutation with auto-refetch
+const { execute: addPostMutation, isFetching: isAdding } = useMutation<AddPostResponse>(ADD_POST, {
+  refetchTags: ['current_user'], // Auto-refetch tagged queries after mutation
+})
 
 // Computed values
 const user = computed(() => data.value?.currentUser ?? null)
@@ -31,16 +34,12 @@ const loading = computed(() => isFetching.value)
 
 // Handlers
 function handleRefresh() {
-  refetch()
+  refetch({ cachePolicy: 'network-only' }) // Bypass cache for manual refresh
 }
 
 async function handleAddPost(content: string) {
-  const result = await addPostMutation({ content })
-
-  if (result.data) {
-    // Refetch to get updated posts
-    refetch()
-  }
+  await addPostMutation({ content })
+  // No need to manually refetch - refetchTags handles it
 }
 </script>
 
