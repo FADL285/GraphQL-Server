@@ -1,38 +1,17 @@
-# GraphQL Frontend Client
+# Frontend - Simple HTML/JS Client
 
 A simple frontend application that uses the Fetch API to interact with the GraphQL server.
 
 ## Features
 
-- ✅ Display current user information
-- ✅ List all posts for the current user
-- ✅ Add new posts via GraphQL mutations
-- ✅ Refresh data on demand
-- ✅ Modern, responsive UI
-- ✅ Error handling and loading states
+- Display current user information
+- List all posts for the current user
+- Add new posts via GraphQL mutations
+- Refresh data on demand
+- Modern, responsive UI
+- Error handling and loading states
 
-## How to Use
-
-1. **Start the GraphQL Server** (in the root directory):
-   ```bash
-   npm run dev
-   ```
-   The server should be running on `http://localhost:4001`
-
-2. **Open the Frontend**:
-   - Simply open `frontend/index.html` in your web browser
-   - Or use a local server (recommended):
-     ```bash
-     # Using Python
-     cd frontend
-     python -m http.server 8000
-     
-     # Using Node.js (http-server)
-     npx http-server frontend -p 8000
-     ```
-   - Then visit `http://localhost:8000` in your browser
-
-## File Structure
+## Project Structure
 
 ```
 frontend/
@@ -43,56 +22,46 @@ frontend/
 └── README.md         # This file
 ```
 
+## Installation
+
+No installation needed - this is a static HTML/JS application.
+
+## Running the Frontend
+
+**Prerequisites**: The GraphQL server must be running (see `../backend/README.md`)
+
+```bash
+# From root
+npm run dev:frontend
+
+# Or from this directory
+npm run dev
+```
+
+The frontend will be available at `http://localhost:3000` (or check the terminal output).
+
+## Alternative Methods
+
+```bash
+# Using http-server
+npm run preview
+
+# Or manually
+npx serve -s .
+npx http-server . -p 8000
+```
+
 ## GraphQL Operations
+
+The frontend uses the Fetch API to communicate with the GraphQL server at `http://localhost:4001`.
 
 ### Queries
 
-**Get Current User:**
-```graphql
-query {
-  currentUser {
-    id
-    username
-    posts {
-      id
-      content
-      userId
-    }
-  }
-}
-```
-
-**Get Posts by User:**
-```graphql
-query GetPostsByUser($userId: String!) {
-  postsByUser(userId: $userId) {
-    id
-    content
-    userId
-  }
-}
-```
+- `getCurrentUser()` - Fetch current user with posts
+- `getPostsByUser(userId)` - Fetch posts for a specific user
 
 ### Mutations
 
-**Add Post:**
-```graphql
-mutation AddPost($content: String!) {
-  addPost(content: $content) {
-    id
-    content
-    userId
-  }
-}
-```
-
-## API Functions
-
-The `graphql-client.js` file provides these functions:
-
-- `graphqlRequest(query, variables)` - Generic GraphQL request function
-- `getCurrentUser()` - Fetch current user with posts
-- `getPostsByUser(userId)` - Fetch posts for a specific user
 - `addPost(content)` - Create a new post
 
 ## Browser Compatibility
@@ -101,10 +70,3 @@ This app uses modern JavaScript features:
 - Fetch API (supported in all modern browsers)
 - Async/await
 - ES6+ syntax
-
-For older browsers, you may need to use a polyfill for the Fetch API.
-
-## CORS Configuration
-
-The GraphQL server is configured to allow requests from any origin (for development). For production, you should restrict this to your specific frontend domain.
-

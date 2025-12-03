@@ -1,0 +1,17 @@
+{
+  "name": "@graphql-server/frontend",
+  "version": "1.0.0",
+  "description": "Simple HTML/JS frontend using Fetch API",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve -s .",
+    "preview": "npx http-server . -p 8000"
+  },
+  "keywords": [
+    "frontend",
+    "html",
+    "graphql-client"
+  ],
+  "author": "",
+  "license": "ISC"
+}
