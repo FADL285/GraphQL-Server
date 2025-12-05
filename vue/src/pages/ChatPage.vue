@@ -31,17 +31,17 @@ watch(
 )
 
 // Subscribe to new messages
-useSubscription<{ messageAdded: Message }>({ query: MESSAGE_ADDED }, ({ data, error }) => {
-  if (error) {
-    console.error('Subscription error:', error)
-    return
-  }
+const { data: subscriptionData } = useSubscription<{ messageAdded: Message }>({
+  query: MESSAGE_ADDED,
+})
 
-  if (data?.messageAdded) {
+// Watch subscription data for new messages
+watch(subscriptionData, (newData) => {
+  if (newData?.messageAdded) {
     // Add new message if not already present
-    const exists = messages.value.some((m) => m.id === data.messageAdded.id)
+    const exists = messages.value.some((m) => m.id === newData.messageAdded.id)
     if (!exists) {
-      messages.value.push(data.messageAdded)
+      messages.value.push(newData.messageAdded)
       scrollToBottom()
     }
   }
