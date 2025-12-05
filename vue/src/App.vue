@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { useClient, handleSubscriptions, defaultPlugins, definePlugin } from 'villus'
+import {
+  useClient,
+  handleSubscriptions,
+  defaultPlugins,
+  definePlugin,
+  type StandardOperationResult,
+} from 'villus'
 import { createClient as createWSClient } from 'graphql-ws'
 import { useAuthStore } from '@/stores/auth'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -24,7 +30,7 @@ const subscriptionsHandler = handleSubscriptions((operation) => {
           variables: operation.variables,
         },
         {
-          next: (data) => observer.next(data),
+          next: (data) => observer.next(data as StandardOperationResult),
           error: (err) => observer.error(err),
           complete: () => observer.complete(),
         },
