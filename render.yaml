@@ -21,7 +21,6 @@ services:
   - type: web
     name: graphql-server-frontend
     runtime: static
-    region: oregon
     plan: free
     rootDir: vue
     buildCommand: npm install && npm run build
