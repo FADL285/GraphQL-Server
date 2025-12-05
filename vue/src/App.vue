@@ -9,12 +9,13 @@ import {
 import { createClient as createWSClient } from 'graphql-ws'
 import { useAuthStore } from '@/stores/auth'
 import AppNavbar from '@/components/AppNavbar.vue'
+import { API_URL, WS_URL } from '@/config'
 
 const authStore = useAuthStore()
 
 // Create WebSocket client for subscriptions
 const wsClient = createWSClient({
-  url: 'ws://localhost:4001/graphql',
+  url: WS_URL,
   connectionParams: () => ({
     authToken: authStore.token,
   }),
@@ -54,7 +55,7 @@ const authPlugin = definePlugin(({ opContext }) => {
 
 // Configure villus client with auth header and subscriptions
 useClient({
-  url: 'http://localhost:4001/graphql',
+  url: API_URL,
   use: [authPlugin, subscriptionsHandler, ...defaultPlugins()],
 })
 </script>

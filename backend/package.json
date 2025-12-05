@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "GraphQL Server with Apollo Server and TypeScript",
   "main": "dist/server.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",

@@ -1,0 +1,39 @@
+# Render Blueprint
+# https://render.com/docs/blueprint-spec
+
+services:
+  # Backend - GraphQL API Server
+  - type: web
+    name: graphql-server-backend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+
+  # Frontend - Vue Static Site
+  - type: web
+    name: graphql-server-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    rootDir: vue
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    envVars:
+      # After first deploy, update these with your actual backend URL:
+      # e.g., https://graphql-server-backend.onrender.com/graphql
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_WS_URL
+        sync: false
