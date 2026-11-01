@@ -10,12 +10,12 @@ export const typeDefs = gql`
     user(id: ID!): User
 
     # Posts
-    posts: [Post!]!
+    posts(limit: Int, offset: Int): [Post!]!
     post(id: ID!): Post
-    postsByUser(userId: ID!): [Post!]!
+    postsByUser(userId: ID!, limit: Int, offset: Int): [Post!]!
 
     # Messages (chat)
-    messages(limit: Int): [Message!]!
+    messages(limit: Int, offset: Int): [Message!]!
   }
 
   type Mutation {

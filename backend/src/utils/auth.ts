@@ -2,7 +2,14 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
 // JWT secret (in production, use environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-key-change-in-production";
+function loadJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("JWT_SECRET must be configured with at least 32 characters");
+  }
+  return secret;
+}
+const JWT_SECRET = loadJwtSecret();
 const JWT_EXPIRES_IN = "7d";
 
 export interface JwtPayload {

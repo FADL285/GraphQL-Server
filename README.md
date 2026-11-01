@@ -272,3 +272,13 @@ For detailed documentation, see each workspace's README:
 ## License
 
 ISC
+
+## Runtime configuration and query limits
+
+Set `JWT_SECRET` to a private random value of at least 32 characters before starting the backend. There is no development fallback. Optional `DATABASE_PATH` selects the SQLite file (the parent directory must exist).
+
+The chat is intentionally public to read and subscribe to, matching the “Public Chat” UI; sending messages and modifying posts still require authentication. Do not use it for private conversations.
+
+Top-level `posts`, `postsByUser`, and `messages` accept `limit` (1–100, default 50) and `offset` (non-negative integer, default 0). Clients must request further pages explicitly. Nested `User.posts` remains unpaged; this demo does not claim global query-complexity protection.
+
+Run backend regression checks with `npm test --workspace=@graphql-server/backend`.

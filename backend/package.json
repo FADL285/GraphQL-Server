@@ -7,10 +7,11 @@
     "node": "20.x"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').copyFileSync('src/db/schema.sql', 'dist/db/schema.sql')\"",
     "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "dev:watch": "nodemon --watch src --exec ts-node src/server.ts"
+    "dev:watch": "nodemon --watch src --exec ts-node src/server.ts",
+    "test": "npm run build && node --test test/*.test.cjs"
   },
   "keywords": [
     "graphql",

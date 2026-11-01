@@ -10,7 +10,7 @@ if (!existsSync(dataDir)) {
 }
 
 // Create database connection
-const dbPath = join(dataDir, "app.db");
+const dbPath = process.env.DATABASE_PATH || join(dataDir, "app.db");
 export const db = new Database(dbPath);
 
 // Enable foreign keys
@@ -87,9 +87,9 @@ export const userQueries = {
 // Post queries
 export const postQueries = {
   findById: db.prepare("SELECT * FROM posts WHERE id = ?"),
-  findAll: db.prepare("SELECT * FROM posts ORDER BY created_at DESC"),
+  findAll: db.prepare("SELECT * FROM posts ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?"),
   findByUserId: db.prepare(
-    "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC"
+    "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC, id DESC"
   ),
   create: db.prepare(
     "INSERT INTO posts (id, content, user_id) VALUES (?, ?, ?)"
@@ -100,10 +100,16 @@ export const postQueries = {
   delete: db.prepare("DELETE FROM posts WHERE id = ? AND user_id = ?"),
 };
 
+// Paged queries used by top-level GraphQL fields.
+export const pagedPostQueries = {
+  findByUserId: db.prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?"),
+};
+
 // Message queries
 export const messageQueries = {
+  findById: db.prepare("SELECT * FROM messages WHERE id = ?"),
   findAll: db.prepare(
-    "SELECT * FROM messages ORDER BY created_at DESC LIMIT ?"
+    "SELECT * FROM messages ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?"
   ),
   create: db.prepare(
     "INSERT INTO messages (id, content, user_id) VALUES (?, ?, ?)"

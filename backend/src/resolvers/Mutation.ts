@@ -172,7 +172,7 @@ export const Mutation = {
     const id = generateId("msg");
     messageQueries.create.run(id, content.trim(), user.id);
 
-    const row = messageQueries.findAll.all(1)[0] as MessageRow;
+    const row = messageQueries.findById.get(id) as MessageRow;
     const message = {
       id: row.id,
       content: row.content,
