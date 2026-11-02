@@ -1,4 +1,5 @@
-import { userQueries, postQueries, messageQueries } from "../db";
+import { pagination } from "../utils/pagination";
+import { userQueries, postQueries, messageQueries, pagedPostQueries } from "../db";
 import type { Context, UserRow, PostRow, MessageRow } from "../types";
 
 export const Query = {
@@ -29,8 +30,9 @@ export const Query = {
   },
 
   // Posts
-  posts: () => {
-    const rows = postQueries.findAll.all() as PostRow[];
+  posts: (_: unknown, args: { limit?: number; offset?: number }) => {
+    const { limit, offset } = pagination(args.limit, args.offset);
+    const rows = postQueries.findAll.all(limit, offset) as PostRow[];
     return rows.map((row) => ({
       id: row.id,
       content: row.content,
@@ -52,8 +54,9 @@ export const Query = {
     };
   },
 
-  postsByUser: (_: unknown, { userId }: { userId: string }) => {
-    const rows = postQueries.findByUserId.all(userId) as PostRow[];
+  postsByUser: (_: unknown, args: { userId: string; limit?: number; offset?: number }) => {
+    const { limit, offset } = pagination(args.limit, args.offset);
+    const rows = pagedPostQueries.findByUserId.all(args.userId, limit, offset) as PostRow[];
     return rows.map((row) => ({
       id: row.id,
       content: row.content,
@@ -64,8 +67,9 @@ export const Query = {
   },
 
   // Messages
-  messages: (_: unknown, { limit = 50 }: { limit?: number }) => {
-    const rows = messageQueries.findAll.all(limit) as MessageRow[];
+  messages: (_: unknown, args: { limit?: number; offset?: number }) => {
+    const { limit, offset } = pagination(args.limit, args.offset);
+    const rows = messageQueries.findAll.all(limit, offset) as MessageRow[];
     // Reverse to get chronological order (oldest first)
     return rows.reverse().map((row) => ({
       id: row.id,

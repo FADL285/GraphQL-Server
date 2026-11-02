@@ -31,6 +31,9 @@ npm install
 ### 2. Start the Backend Server
 
 ```bash
+# Set JWT_SECRET in this shell first: at least 32 characters from a secure random generator.
+# backend/.env.example is a template and is not automatically loaded.
+export JWT_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")"
 npm run dev:backend
 ```
 
@@ -64,7 +67,7 @@ Visit `http://localhost:5173`
 ## Available Scripts
 
 ```bash
-# Development
+# Development (configure JWT_SECRET using the quick-start command in this shell first)
 npm run dev:backend    # Start GraphQL server with hot-reload
 npm run dev:frontend   # Start simple HTML/JS frontend
 npm run dev:vue        # Start Vue app with Vite
@@ -239,6 +242,7 @@ subscription {
 
 1. **Terminal 1** - Backend:
    ```bash
+   export JWT_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")"
    npm run dev:backend
    ```
 
@@ -272,3 +276,13 @@ For detailed documentation, see each workspace's README:
 ## License
 
 ISC
+
+## Runtime configuration and query limits
+
+Set `JWT_SECRET` to a private random value of at least 32 characters before starting the backend. There is no development fallback. Optional `DATABASE_PATH` selects the SQLite file (the parent directory must exist).
+
+The chat is intentionally public to read and subscribe to, matching the “Public Chat” UI; sending messages and modifying posts still require authentication. Do not use it for private conversations.
+
+Top-level `posts`, `postsByUser`, and `messages` accept `limit` (1–100, default 50) and `offset` (non-negative integer, default 0). Clients must request further pages explicitly. Nested `User.posts` remains unpaged; this demo does not claim global query-complexity protection.
+
+Run backend regression checks with `npm test --workspace=@graphql-server/backend`.
