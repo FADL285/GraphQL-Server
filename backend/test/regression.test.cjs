@@ -62,3 +62,9 @@ test('public chat remains readable and subscribable without a token', async () =
   assert.equal(typeof iterator.next, 'function');
   await iterator.return();
 });
+
+test('an explicit database path never tries to create the default data directory', () => {
+  const script = `const fs = require('fs'); fs.existsSync = () => false; fs.mkdirSync = () => { throw new Error('default directory write attempted'); }; const { db } = require('./dist/db'); db.close();`;
+  const result = spawnSync(process.execPath, ['-e', script], { cwd: join(__dirname, '..'), env: { ...process.env, DATABASE_PATH: ':memory:' } });
+  assert.equal(result.status, 0, result.stderr.toString());
+});

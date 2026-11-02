@@ -31,6 +31,9 @@ npm install
 ### 2. Start the Backend Server
 
 ```bash
+# Set JWT_SECRET in this shell first: at least 32 characters from a secure random generator.
+# backend/.env.example is a template and is not automatically loaded.
+export JWT_SECRET="<your-generated-random-secret>"
 npm run dev:backend
 ```
 

@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 // Ensure data directory exists
 const dataDir = join(__dirname, "../../data");
-if (!existsSync(dataDir)) {
+if (!process.env.DATABASE_PATH && !existsSync(dataDir)) {
   mkdirSync(dataDir, { recursive: true });
 }
 
