@@ -33,7 +33,7 @@ npm install
 ```bash
 # Set JWT_SECRET in this shell first: at least 32 characters from a secure random generator.
 # backend/.env.example is a template and is not automatically loaded.
-export JWT_SECRET="<your-generated-random-secret>"
+export JWT_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")"
 npm run dev:backend
 ```
 
@@ -67,7 +67,7 @@ Visit `http://localhost:5173`
 ## Available Scripts
 
 ```bash
-# Development
+# Development (configure JWT_SECRET using the quick-start command in this shell first)
 npm run dev:backend    # Start GraphQL server with hot-reload
 npm run dev:frontend   # Start simple HTML/JS frontend
 npm run dev:vue        # Start Vue app with Vite
@@ -242,6 +242,7 @@ subscription {
 
 1. **Terminal 1** - Backend:
    ```bash
+   export JWT_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")"
    npm run dev:backend
    ```
 
